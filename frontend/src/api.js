@@ -21,11 +21,15 @@ export async function submitRequest(payload) {
   } catch {
     data = null;
   }
+  // 409: algún material ya se pidió recientemente para esta tienda.
+  if (res.status === 409 && data && data.duplicates) {
+    return { status: "duplicate", duplicates: data.duplicates };
+  }
   if (!res.ok) {
     const message =
       (data && (data.detail || JSON.stringify(data))) ||
       "Se produjo un error al enviar la solicitud.";
     throw new Error(message);
   }
-  return data;
+  return { status: "ok", data };
 }

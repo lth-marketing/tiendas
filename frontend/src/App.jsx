@@ -22,6 +22,8 @@ export default function App() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [done, setDone] = useState(false);
+  // Materiales ya pedidos recientemente, pendientes de confirmación.
+  const [duplicates, setDuplicates] = useState(null);
 
   useEffect(() => {
     fetchConfig()
@@ -69,12 +71,11 @@ export default function App() {
     items.every((it) => it.material && Number(it.units) >= 1);
   const canSubmit = store && reason.trim() && itemsValid && !submitting;
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function send(confirm) {
     setSubmitError("");
     setSubmitting(true);
     try {
-      await submitRequest({
+      const result = await submitRequest({
         store,
         requester: requester.trim(),
         reason: reason.trim(),
@@ -82,13 +83,24 @@ export default function App() {
           material: it.material,
           units: Number(it.units),
         })),
+        confirm,
       });
-      setDone(true);
+      if (result.status === "duplicate") {
+        setDuplicates(result.duplicates);
+      } else {
+        setDuplicates(null);
+        setDone(true);
+      }
     } catch (err) {
       setSubmitError(err.message);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    send(false);
   }
 
   function resetForm() {
@@ -98,6 +110,7 @@ export default function App() {
     setReason("");
     setItems([emptyItem()]);
     setSubmitError("");
+    setDuplicates(null);
     setDone(false);
   }
 
@@ -264,6 +277,56 @@ export default function App() {
           </form>
         )}
       </main>
+
+      {duplicates && (
+        <div
+          className="modal-overlay"
+          onClick={() => !submitting && setDuplicates(null)}
+        >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="warn-icon">!</div>
+            <h2>Material ya solicitado</h2>
+            <p>
+              Para la tienda <strong>{store}</strong> ya se solicitó
+              recientemente:
+            </p>
+            <ul className="dup-list">
+              {duplicates.map((d) => (
+                <li key={d.material}>
+                  <strong>{d.name}</strong>{" "}
+                  <span className="muted">
+                    {d.days_ago === 0
+                      ? "hoy"
+                      : d.days_ago === 1
+                      ? "hace 1 día"
+                      : `hace ${d.days_ago} días`}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p>¿Quieres volver a solicitarlo de todos modos?</p>
+            {submitError && <p className="error">{submitError}</p>}
+            <div className="actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setDuplicates(null)}
+                disabled={submitting}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="btn"
+                onClick={() => send(true)}
+                disabled={submitting}
+              >
+                {submitting ? "Enviando…" : "Sí, volver a pedir"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="footer">La Tienda Home · Marketing</footer>
     </div>
