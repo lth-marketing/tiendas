@@ -36,8 +36,13 @@ CSRF_TRUSTED_ORIGINS = [
     if o.strip()
 ]
 
-# URL del webhook de N8N al que se reenvían las solicitudes (configurable).
-N8N_WEBHOOK_URL = os.environ.get("N8N_WEBHOOK_URL", "")
+# URL del webhook de N8N al que se reenvían las solicitudes.
+# Se puede sobreescribir con la variable de entorno N8N_WEBHOOK_URL en Easypanel
+# (por ejemplo, para apuntar a la URL de producción /webhook/ en vez de /webhook-test/).
+N8N_WEBHOOK_URL = os.environ.get(
+    "N8N_WEBHOOK_URL",
+    "https://latiendahome-n8n-pruebas.wsxq6b.easypanel.host/webhook-test/pedir-material-tienda",
+)
 
 # --- Aplicaciones -----------------------------------------------------------
 INSTALLED_APPS = [
