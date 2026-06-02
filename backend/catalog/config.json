@@ -1,0 +1,22 @@
+{
+  "stores": [
+    "Alfafar",
+    "Gandía",
+    "Valencia Centro",
+    "Castellón",
+    "Alicante",
+    "Sagunto"
+  ],
+  "materials": [
+    { "id": "folletos", "name": "Folletos" },
+    { "id": "carteles_a3", "name": "Carteles A3" },
+    { "id": "carteles_a1", "name": "Carteles A1" },
+    { "id": "roll_up", "name": "Roll-up" },
+    { "id": "tarjetas", "name": "Tarjetas de visita" },
+    { "id": "bolsas", "name": "Bolsas de papel" },
+    { "id": "vinilos", "name": "Vinilos / Adhesivos" },
+    { "id": "catalogos", "name": "Catálogos" },
+    { "id": "flyers_promo", "name": "Flyers promocionales" },
+    { "id": "expositor", "name": "Expositor de mostrador" }
+  ]
+}

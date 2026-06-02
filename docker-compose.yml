@@ -1,0 +1,11 @@
+# docker-compose para pruebas locales. En Easypanel se usa el Dockerfile.
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-dev-insecure-key}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-*}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-false}
