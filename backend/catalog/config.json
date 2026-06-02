@@ -2,10 +2,16 @@
   "stores": [
     "Alfafar",
     "Gandía",
-    "Valencia Centro",
-    "Castellón",
-    "Alicante",
-    "Sagunto"
+    "Finestrat",
+    "Lombard",
+    "Murcia",
+    "Barcelona",
+    "San Sebastián de los Reyes",
+    "Elche",
+    "Marbella",
+    "Málaga",
+    "Arganda del Rey",
+    "Fuenlabrada"
   ],
   "materials": [
     { "id": "folletos", "name": "Folletos" },
