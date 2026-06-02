@@ -5,7 +5,7 @@ const LOGO_URL =
   "https://latiendahome-cms.s3.eu-west-1.amazonaws.com/Logotipo_68d4113877.svg";
 
 function emptyItem() {
-  return { material: "", units: 1 };
+  return { material: "", units: "" };
 }
 
 export default function App() {
@@ -30,9 +30,29 @@ export default function App() {
       .finally(() => setLoadingConfig(false));
   }, []);
 
+  const materialsById = Object.fromEntries(
+    config.materials.map((m) => [m.id, m])
+  );
+
+  function unitsFor(materialId) {
+    return materialsById[materialId]?.units ?? [];
+  }
+
   function updateItem(index, field, value) {
     setItems((prev) =>
       prev.map((it, i) => (i === index ? { ...it, [field]: value } : it))
+    );
+  }
+
+  function changeMaterial(index, materialId) {
+    // Al cambiar el material, preseleccionamos su primera unidad permitida.
+    const units = unitsFor(materialId);
+    setItems((prev) =>
+      prev.map((it, i) =>
+        i === index
+          ? { ...it, material: materialId, units: units[0] ?? "" }
+          : it
+      )
     );
   }
 
@@ -153,7 +173,7 @@ export default function App() {
                       <select
                         value={item.material}
                         onChange={(e) =>
-                          updateItem(index, "material", e.target.value)
+                          changeMaterial(index, e.target.value)
                         }
                         required
                       >
@@ -169,15 +189,23 @@ export default function App() {
                     </label>
                     <label className="field units">
                       <span>Unidades</span>
-                      <input
-                        type="number"
-                        min="1"
+                      <select
                         value={item.units}
                         onChange={(e) =>
-                          updateItem(index, "units", e.target.value)
+                          updateItem(index, "units", Number(e.target.value))
                         }
+                        disabled={!item.material}
                         required
-                      />
+                      >
+                        <option value="" disabled>
+                          —
+                        </option>
+                        {unitsFor(item.material).map((u) => (
+                          <option key={u} value={u}>
+                            {u.toLocaleString("es-ES")}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                     {items.length > 1 && (
                       <button
