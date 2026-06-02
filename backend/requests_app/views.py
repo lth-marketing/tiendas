@@ -136,6 +136,28 @@ def material_request_view(request):
             status=status.HTTP_502_BAD_GATEWAY,
         )
 
+    # El webhook debe confirmar la recepción con {"response": "ok"}. Si no,
+    # no la damos por enviada (el comercial podrá reintentar y no saltará la
+    # advertencia de duplicado por error).
+    try:
+        body = resp.json()
+    except ValueError:
+        body = None
+    if not isinstance(body, dict) or body.get("response") != "ok":
+        logger.error(
+            "El webhook de N8N no confirmó con {'response':'ok'}: %s",
+            (resp.text or "")[:200],
+        )
+        return Response(
+            {
+                "detail": "El equipo de marketing no confirmó la recepción "
+                "de la solicitud. Inténtalo de nuevo más tarde.",
+                "saved": True,
+                "forwarded": False,
+            },
+            status=status.HTTP_502_BAD_GATEWAY,
+        )
+
     record.forwarded = True
     record.save(update_fields=["forwarded"])
 
