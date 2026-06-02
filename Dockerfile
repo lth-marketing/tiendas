@@ -28,5 +28,5 @@ RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# Aplica migraciones (histórico SQLite) y arranca Gunicorn.
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT} --workers 3"]
+# Migra, crea/actualiza el superusuario del admin (si hay credenciales) y arranca Gunicorn.
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py ensure_superuser && gunicorn core.wsgi:application --bind 0.0.0.0:${PORT} --workers 3"]

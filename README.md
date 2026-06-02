@@ -61,6 +61,24 @@ Ver `.env.example`. La más importante:
 }
 ```
 
+## Panel de administración (histórico de solicitudes)
+
+El equipo de marketing puede consultar todas las solicitudes recibidas en el
+**admin de Django**, disponible en la ruta **`/admin`** de la app desplegada
+(ej. `https://material.tudominio.com/admin`).
+
+Las credenciales se crean automáticamente al arrancar el contenedor a partir de
+estas variables de entorno (defínelas en Easypanel):
+
+- `DJANGO_SUPERUSER_USERNAME`
+- `DJANGO_SUPERUSER_PASSWORD`
+- `DJANGO_SUPERUSER_EMAIL` (opcional)
+
+Si cambias la contraseña en la variable y reinicias, se actualiza automáticamente.
+
+> Para que el histórico no se pierda entre despliegues, monta un volumen y
+> define `DJANGO_DB_PATH=/data/db.sqlite3` (ver más abajo).
+
 ## Desarrollo local
 
 Backend:
