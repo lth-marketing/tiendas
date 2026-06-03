@@ -28,8 +28,16 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
-# Easypanel sirve la app detrás de un proxy; confiamos en el origen de las
-# peticiones para CSRF si se define explícitamente.
+# Easypanel sirve la app detrás de un proxy que termina el HTTPS y reenvía la
+# petición por HTTP. Confiamos en X-Forwarded-Proto para que Django sepa que la
+# conexión original era segura; sin esto, la verificación CSRF del admin falla
+# (el Origin https:// del navegador no coincidiría con el http:// que vería Django).
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
+
+# Orígenes de confianza para CSRF. Con SECURE_PROXY_SSL_HEADER suele bastar,
+# pero se pueden añadir explícitamente vía DJANGO_CSRF_TRUSTED_ORIGINS
+# (ej. "https://material.tudominio.com").
 CSRF_TRUSTED_ORIGINS = [
     o.strip()
     for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
