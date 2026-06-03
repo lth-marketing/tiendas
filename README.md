@@ -113,7 +113,10 @@ docker run -p 8000:8000 -e N8N_WEBHOOK_URL=https://webhook.site/xxxx tiendas
 2. Build: **Dockerfile** (en la raíz). Puerto del contenedor: **8000**.
 3. En **Environment**, define las variables (al menos `N8N_WEBHOOK_URL`,
    `DJANGO_SECRET_KEY` y `DJANGO_ALLOWED_HOSTS`).
-4. (Opcional) Monta un **volumen** en `/data` y define
-   `DJANGO_DB_PATH=/data/db.sqlite3` para conservar el histórico de solicitudes.
+4. **Monta un volumen** (obligatorio para no perder datos). En la pestaña
+   **Mounts / Volumes** de Easypanel, añade un **Volume** con
+   **Mount path = `/data`**. La base de datos vive ahí por defecto
+   (`/data/db.sqlite3`), así el histórico y el usuario admin **sobreviven a
+   cada redeploy**. Sin volumen, el contenedor es efímero y los datos se borran.
 5. Despliega. El catálogo se edita en `backend/catalog/config.json`.
 ```

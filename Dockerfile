@@ -10,7 +10,8 @@ RUN npm run build
 FROM python:3.12-slim AS runtime
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PORT=8000
+    PORT=8000 \
+    DJANGO_DB_PATH=/data/db.sqlite3
 
 WORKDIR /app
 

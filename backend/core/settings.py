@@ -96,11 +96,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "core.wsgi.application"
 
-# --- Base de datos (SQLite para histórico opcional de solicitudes) ----------
+# --- Base de datos (SQLite) -------------------------------------------------
+# Por defecto el fichero vive junto al código, pero en producción debe apuntar
+# a un volumen persistente (ver DJANGO_DB_PATH / Dockerfile) para que el
+# histórico NO se borre en cada redeploy. Creamos el directorio si no existe.
+DB_PATH = Path(os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")))
+DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")),
+        "NAME": str(DB_PATH),
     }
 }
 
