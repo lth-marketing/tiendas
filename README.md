@@ -20,25 +20,27 @@ marketing. El flujo es:
 
 ```
 backend/    Proyecto Django (API + servir el SPA)
-  catalog/config.json   Catálogo EDITABLE de tiendas y materiales
 frontend/   App React (Vite)
 Dockerfile  Build multi-stage (React -> Django runtime)
 ```
 
 ## Editar tiendas y materiales
 
-Edita **`backend/catalog/config.json`**:
+Las tiendas y los materiales se gestionan **desde el admin de Django**
+(`/admin`), en las secciones **Tiendas** y **Materiales**. Puedes añadir,
+editar, reordenar o desactivar elementos, y los cambios se reflejan **al
+instante** en el formulario (sin redesplegar).
 
-```json
-{
-  "stores": ["Alfafar", "Gandía", "..."],
-  "materials": [
-    { "id": "folletos", "name": "Folletos" }
-  ]
-}
-```
+En cada **Material** se indican las unidades seleccionables en el campo
+**Unidades**, que admite:
 
-Tras editarlo, reinicia el contenedor para que los cambios se reflejen.
+- un número suelto: `1000`
+- una lista: `1,2,3,4,5`
+- un rango: `1-30`
+- combinaciones: `1,2,5-7`
+
+El **Código** es el identificador que se envía al webhook (ej. `peanas`); se
+genera automáticamente a partir del nombre.
 
 ## Variables de entorno
 
@@ -56,7 +58,7 @@ Ver `.env.example`. La más importante:
   "store": "Alfafar",
   "requester": "Nombre del comercial",
   "reason": "Motivo de la solicitud",
-  "items": [{ "material": "folletos", "units": 100 }],
+  "items": [{ "material": "peanas", "units": 5 }],
   "submitted_at": "2026-06-02T10:00:00+00:00"
 }
 ```
@@ -118,5 +120,5 @@ docker run -p 8000:8000 -e N8N_WEBHOOK_URL=https://webhook.site/xxxx tiendas
    **Mount path = `/data`**. La base de datos vive ahí por defecto
    (`/data/db.sqlite3`), así el histórico y el usuario admin **sobreviven a
    cada redeploy**. Sin volumen, el contenedor es efímero y los datos se borran.
-5. Despliega. El catálogo se edita en `backend/catalog/config.json`.
+5. Despliega. El catálogo (tiendas y materiales) se gestiona desde `/admin`.
 ```

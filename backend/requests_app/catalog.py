@@ -1,69 +1,39 @@
-"""Carga del catálogo editable de tiendas y materiales.
+"""Acceso al catálogo de tiendas y materiales (gestionado desde el admin).
 
-El equipo de marketing edita ``backend/catalog/config.json`` para cambiar las
-tiendas disponibles y el catálogo de materiales sin tocar el código.
-
-Cada material define qué unidades se pueden solicitar, de una de estas formas:
-
-    { "id": "tarjetas_visita", "name": "...", "units": [1000] }
-    { "id": "peanas",          "name": "...", "units_range": [1, 30] }
-
-- ``units``: lista explícita de cantidades seleccionables.
-- ``units_range``: rango inclusivo [min, max] que se expande automáticamente.
+Las tiendas y los materiales viven en la base de datos (modelos Store y
+Material) y se editan desde el panel de administración de Django. Cualquier
+cambio se refleja de inmediato, sin necesidad de redesplegar.
 """
-import json
-from functools import lru_cache
-from pathlib import Path
-
-CONFIG_PATH = Path(__file__).resolve().parent.parent / "catalog" / "config.json"
-
-
-def _expand_units(material):
-    """Devuelve la lista de unidades permitidas para un material."""
-    if "units" in material:
-        return [int(u) for u in material["units"]]
-    if "units_range" in material:
-        lo, hi = material["units_range"]
-        return list(range(int(lo), int(hi) + 1))
-    return []
-
-
-@lru_cache(maxsize=1)
-def _load():
-    with open(CONFIG_PATH, encoding="utf-8") as fh:
-        data = json.load(fh)
-    stores = list(data.get("stores", []))
-    materials = []
-    for m in data.get("materials", []):
-        materials.append(
-            {
-                "id": m["id"],
-                "name": m["name"],
-                "units": _expand_units(m),
-            }
-        )
-    return {"stores": stores, "materials": materials}
+from .models import Material, Store
 
 
 def get_config():
-    """Devuelve el catálogo completo {stores, materials} con unidades expandidas."""
-    return _load()
+    """Catálogo para el frontend: tiendas y materiales activos."""
+    stores = list(
+        Store.objects.filter(active=True).values_list("name", flat=True)
+    )
+    materials = [
+        {"id": m.code, "name": m.name, "units": m.units_list()}
+        for m in Material.objects.filter(active=True)
+    ]
+    return {"stores": stores, "materials": materials}
 
 
 def store_names():
-    return set(_load()["stores"])
+    """Nombres de tiendas activas (para validación)."""
+    return set(Store.objects.filter(active=True).values_list("name", flat=True))
 
 
 def material_ids():
-    return {m["id"] for m in _load()["materials"]}
+    """Códigos de materiales activos (para validación)."""
+    return set(
+        Material.objects.filter(active=True).values_list("code", flat=True)
+    )
 
 
 def allowed_units():
-    """Mapa {material_id: set(unidades permitidas)}."""
-    return {m["id"]: set(m["units"]) for m in _load()["materials"]}
-
-
-def reload_config():
-    """Limpia la caché (útil tras editar el config.json)."""
-    _load.cache_clear()
-    return _load()
+    """Mapa {código_material: set(unidades permitidas)} de materiales activos."""
+    return {
+        m.code: set(m.units_list())
+        for m in Material.objects.filter(active=True)
+    }

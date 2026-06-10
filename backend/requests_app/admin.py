@@ -1,7 +1,24 @@
-"""Registro del histórico de solicitudes en el admin de Django."""
+"""Admin de Django: catálogo (tiendas y materiales) e histórico."""
 from django.contrib import admin
 
-from .models import MaterialRequest
+from .models import Material, MaterialRequest, Store
+
+
+@admin.register(Store)
+class StoreAdmin(admin.ModelAdmin):
+    list_display = ("name", "order", "active")
+    list_editable = ("order", "active")
+    search_fields = ("name",)
+    ordering = ("order", "name")
+
+
+@admin.register(Material)
+class MaterialAdmin(admin.ModelAdmin):
+    list_display = ("name", "code", "units_spec", "order", "active")
+    list_editable = ("order", "active")
+    search_fields = ("name", "code")
+    ordering = ("order", "name")
+    prepopulated_fields = {"code": ("name",)}
 
 
 @admin.register(MaterialRequest)
